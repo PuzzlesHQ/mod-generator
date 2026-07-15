@@ -25,6 +25,7 @@
     "server-init": "${p_group}.Server{{ mod_class_name }}"
   },
 
+  {{ #mixins }}
   "mixins": [
     "${p_id}.common.mixins.json",
     {
@@ -36,6 +37,7 @@
       "environment": "server"
     }
   ],
+  {{ /mixins }}
 
   "depends": {
     "cosmic-reach": ">={{ cosmic_reach_version }}",
@@ -43,11 +45,15 @@
     "puzzle-loader-core": ">={{ puzzle_loader_core_version }}"
   },
 
+  {{ #manipulators }}
   "access-writers": [
     "${p_id}.manipulator"
   ],
+  {{ /manipulators }}
 
+  {{ #injects }}
   "interface-injectors": [
     "${p_id}.inject"
   ]
+  {{ /injects }}
 }

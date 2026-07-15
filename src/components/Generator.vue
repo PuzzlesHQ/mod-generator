@@ -25,6 +25,8 @@ const state = reactive({
   pCorVersion: "",
   pJigVersion: "",
   mixins: true,
+  injects: false,
+  manipulators: true,
 });
 
 onMounted(async () => {
@@ -71,6 +73,8 @@ async function generateToJSON() {
     pJigVersion: state.pJigVersion,
     chmodGradlewStep: true,
     mixins: state.mixins,
+    injects: state.injects,
+    manipulators: state.manipulators,
   };
   return generateTemplate(templateInputs, settings, await fetchVersions());
 }
@@ -293,6 +297,18 @@ const submit = async (generator: () => Promise<any>) => {
               v-model="state.mixins"
               label="Add mixin configuration"
               hint="Tick to add a mixin configuration to the generated project"
+              persistent-hint
+            />
+            <v-checkbox
+              v-model="state.manipulators"
+              label="Add manipulators configuration"
+              hint="Tick to add a manipulators configuration to the generated project"
+              persistent-hint
+            />
+            <v-checkbox
+              v-model="state.injects"
+              label="Add injects configuration"
+              hint="Tick to add a injects configuration to the generated project"
               persistent-hint
             />
           </v-expansion-panel-text>

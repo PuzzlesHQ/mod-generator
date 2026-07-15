@@ -1,10 +1,11 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "{{ package_name }}.client",
+  "package": "{{ package_name }}.mixins.server",
   "compatibilityLevel": "JAVA_17",
-  "mixins": [],
-  "server": [],
+  "mixins": [
+
+  ],
   "injectors": {
     "defaultRequire": 1
   },

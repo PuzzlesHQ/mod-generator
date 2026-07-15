@@ -13,6 +13,8 @@ export interface Settings {
   pJigVersion: string;
   chmodGradlewStep: boolean;
   mixins: boolean;
+  injects: boolean;
+  manipulators: boolean;
 }
 
 /**
@@ -108,6 +110,8 @@ function generateInterpolated(
     mod_class_name: modClassName,
     chmod_gradlew_step: settings.chmodGradlewStep,
     mixins: settings.mixins,
+    injects: settings.injects,
+    manipulators: settings.manipulators,
   };
 
   let seenCurrentCRVersion = false;
@@ -133,17 +137,15 @@ function generateInterpolated(
   ret[`src/common/resources/assets/${settings.modId}/icons/icon.png`] =
     encodeUtf8(icon_png);
 
-  ret[`src/common/resources/${settings.modId}.inject`] = encodeUtf8(
-    interpolateTemplate(injector, view),
-  );
-
-  ret[`src/common/resources/${settings.modId}.manipulator`] = encodeUtf8(
-    interpolateTemplate(manipulator, view),
-  );
-
   ret[`src/common/resources/puzzle.mod.json`] = encodeUtf8(
     interpolateTemplate(puzzle_mod_json, view),
   );
+
+  ret[`src/common/resources/assets/${settings.modId}/models/.gitkeep`] =
+    new Uint8Array();
+
+  ret[`src/client/resources/assets/${settings.modId}/textures/.gitkeep`] =
+    new Uint8Array();
 
   const commonFolder = `src/common/java/${settings.packageName.replace(/\./g, "/")}`;
   const clientFolder = `src/client/java/${settings.packageName.replace(/\./g, "/")}`;
@@ -174,9 +176,21 @@ function generateInterpolated(
       encodeUtf8(interpolateTemplate(client_mixin_json, view));
     ret[`src/server/resources/${settings.modId}.server.mixins.json`] =
       encodeUtf8(interpolateTemplate(server_mixin_json, view));
-    ret[`${commonFolder}/mixins/common/`] = new Uint8Array();
-    ret[`${clientFolder}/mixins/client/`] = new Uint8Array();
-    ret[`${serverFolder}/mixins/server/`] = new Uint8Array();
+    ret[`${commonFolder}/mixins/common/.gitkeep`] = new Uint8Array();
+    ret[`${clientFolder}/mixins/client/.gitkeep`] = new Uint8Array();
+    ret[`${serverFolder}/mixins/server/.gitkeep`] = new Uint8Array();
+  }
+
+  if (settings.injects) {
+    ret[`src/common/resources/${settings.modId}.inject`] = encodeUtf8(
+      interpolateTemplate(injector, view),
+    );
+  }
+
+  if (settings.manipulators) {
+    ret[`src/common/resources/${settings.modId}.manipulator`] = encodeUtf8(
+      interpolateTemplate(manipulator, view),
+    );
   }
 
   return ret;

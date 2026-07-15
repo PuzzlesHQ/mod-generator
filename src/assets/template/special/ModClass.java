@@ -2,9 +2,6 @@ package {{ package_name }};
 
 import dev.puzzleshq.puzzleloader.loader.mod.entrypoint.common.ModInit;
 
-import java.util.Objects;
-import java.util.Set;
-
 import static {{ package_name }}.Constants.MOD_ID;
 
 public class Init{{ mod_class_name }} implements ModInit {

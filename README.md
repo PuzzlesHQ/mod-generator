@@ -4,6 +4,8 @@ A generator for Puzzle mods.
 This project is designed to work both in browsers via an embeddable Vue.js app,
 and as a CLI tool.
 
+all credit gos to [neoforge mod generator](https://github.com/neoforged/mod-generator) as the original creators 
+
 ## Development
 The core mod generator tool is contained in `src/generator`, and is consumed in two ways:
 - via `src/cli/cli.ts`, the CLI entrypoint.

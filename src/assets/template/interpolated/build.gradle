@@ -9,14 +9,16 @@ version = p_version
 jigsawGame {
     splitSourceSets()
 }
-
+{{ #manipulators }}
 jigsawAccess {
     addManipulators(file("$projectDir/src/common/resources/${p_id}.manipulator"))
 }
-
+{{ /manipulators }}
+{{ #injects }}
 jigsawInject {
     addInterfaceInjectors(file("$projectDir/src/common/resources/${p_id}.inject"))
 }
+{{ /injects }}
 
 repositories {
     mavenCentral()
@@ -29,7 +31,7 @@ dependencies {
 
     cosmicReach("finalforeach:cosmic-reach:${cosmic_reach_version}")
 
-    commonImplementation "com.github.PuzzlesHQ:cosmic-api:${cosmic_api_version}:merged"
+    //commonImplementation "com.github.PuzzlesHQ:cosmic-api:${cosmic_api_version}:merged"
 }
 
 processCommonResources {

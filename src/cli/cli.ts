@@ -38,6 +38,8 @@ program
       .choices(["no", "workflow-step"]),
   )
   .option("--mixins", "Add a mixin config to the generated mod", false)
+  .option("--injects", "Add a injects config to the generated mod", false)
+  .option("--manipulators", "Add a manipulators config to the generated mod", false)
   .action(async (options) => {
     const {
       modName,
@@ -49,7 +51,9 @@ program
       outputFolder,
       gradlePlugin,
       executableGradlew,
-      mixins
+      mixins,
+      injects,
+      manipulators,
     } = options;
 
     const templatesFolder = fileURLToPath(
@@ -65,7 +69,9 @@ program
       minecraftVersion,
       useNeoGradle: gradlePlugin === "ng" || gradlePlugin === "neogradle",
       chmodGradlewStep: executableGradlew === "workflow-step",
-      mixins: mixins
+      mixins: mixins,
+      injects: injects,
+      manipulators: manipulators
     };
     const result = await generateTemplate(
       templateInputs,

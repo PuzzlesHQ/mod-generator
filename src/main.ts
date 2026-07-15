@@ -1,6 +1,7 @@
 import { createApp } from "vue";
 import Generator from "./components/Generator.vue";
 
+// @ts-ignore
 import 'vuetify/styles'
 import '@fortawesome/fontawesome-free/css/all.min.css'
 

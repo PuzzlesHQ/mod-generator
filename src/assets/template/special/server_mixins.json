@@ -4,7 +4,7 @@
   "package": "{{ package_name }}.client",
   "compatibilityLevel": "JAVA_17",
   "mixins": [],
-  "client": [],
+  "server": [],
   "injectors": {
     "defaultRequire": 1
   },

@@ -62,8 +62,6 @@ function interpolateTemplate(
   partials?: any,
 ): string {
   return Mustache.render(template, view, partials, {
-    // No escaping since we're not rendering to HTML.
-    // TODO: double check since there is a TS "unused property escape" warning
     escape: (value: any) => value,
   });
 }
@@ -77,13 +75,17 @@ function generateRaw(inputs: TemplateInputs, ret: GeneratedTemplate) {
 }
 
 import en_us_json from "../assets/template/special/en_us.json?raw";
-import mixins_json from "../assets/template/special/mixins.json?raw";
-import Config_java from "../assets/template/special/Config.java?raw";
+import mixin_json from "../assets/template/special/mixins.json?raw";
+import client_mixin_json from "../assets/template/special/client_mixins.json?raw";
+import server_mixin_json from "../assets/template/special/server_mixins.json?raw";
+import puzzle_mod_json from "../assets/template/special/puzzle.mod.json?raw";
 import ModClass_java from "../assets/template/special/ModClass.java?raw";
 import ModClassClient_java from "../assets/template/special/ModClassClient.java?raw";
-import mdg_block_gradle from "../assets/template/special/mdg_block.gradle?raw";
-import ng_block_gradle from "../assets/template/special/ng_block.gradle?raw";
-import neoforge_mods_toml from "../assets/template/special/neoforge.mods.toml?raw";
+import ModClassServer_java from "../assets/template/special/ModClassServer.java?raw";
+import Constants_java from "../assets/template/special/Constants.java?raw";
+import injector from "../assets/template/special/inject.inject?raw";
+import manipulator from "../assets/template/special/manipulator.manipulator?raw";
+import icon_png from "../assets/template/special/icon.png?raw";
 
 function generateInterpolated(
   inputs: TemplateInputs,
@@ -128,22 +130,53 @@ function generateInterpolated(
   ret[`src/common/resources/assets/${settings.modId}/lang/en_us.json`] =
     encodeUtf8(interpolateTemplate(en_us_json, view));
 
+  ret[`src/common/resources/assets/${settings.modId}/icons/icon.png`] =
+    encodeUtf8(icon_png);
+
+  ret[`src/common/resources/${settings.modId}.inject`] = encodeUtf8(
+    interpolateTemplate(injector, view),
+  );
+
+  ret[`src/common/resources/${settings.modId}.manipulator`] = encodeUtf8(
+    interpolateTemplate(manipulator, view),
+  );
+
+  ret[`src/common/resources/puzzle.mod.json`] = encodeUtf8(
+    interpolateTemplate(puzzle_mod_json, view),
+  );
+
   const commonFolder = `src/common/java/${settings.packageName.replace(/\./g, "/")}`;
-  const clientFolder = `src/common/java/${settings.packageName.replace(/\./g, "/")}`;
+  const clientFolder = `src/client/java/${settings.packageName.replace(/\./g, "/")}`;
+  const serverFolder = `src/server/java/${settings.packageName.replace(/\./g, "/")}`;
 
 
-  ret[`${commonFolder}/${modClassName}.java`] = encodeUtf8(
+  ret[`${commonFolder}/Init${modClassName}.java`] = encodeUtf8(
     interpolateTemplate(ModClass_java, view),
   );
 
-  ret[`${clientFolder}/${modClassName}Client.java`] = encodeUtf8(
+  ret[`${commonFolder}/Constants.java`] = encodeUtf8(
+    interpolateTemplate(Constants_java, view),
+  );
+
+  ret[`${clientFolder}/Client${modClassName}.java`] = encodeUtf8(
     interpolateTemplate(ModClassClient_java, view),
+  );
+
+  ret[`${serverFolder}/Server${modClassName}.java`] = encodeUtf8(
+    interpolateTemplate(ModClassServer_java, view),
   );
 
   if (settings.mixins) {
     ret[`src/common/resources/${settings.modId}.common.mixins.json`] = encodeUtf8(
-      interpolateTemplate(mixins_json, view),
+      interpolateTemplate(mixin_json, view),
     );
+    ret[`src/client/resources/${settings.modId}.client.mixins.json`] =
+      encodeUtf8(interpolateTemplate(client_mixin_json, view));
+    ret[`src/server/resources/${settings.modId}.server.mixins.json`] =
+      encodeUtf8(interpolateTemplate(server_mixin_json, view));
+    ret[`${commonFolder}/mixins/common/`] = new Uint8Array();
+    ret[`${clientFolder}/mixins/client/`] = new Uint8Array();
+    ret[`${serverFolder}/mixins/server/`] = new Uint8Array();
   }
 
   return ret;

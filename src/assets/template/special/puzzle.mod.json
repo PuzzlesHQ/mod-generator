@@ -17,18 +17,14 @@
   },
 
   "entrypoints": {
-    "client-postInit": "${p_group}.ClientExampleMod",
-    "client-init": "${p_group}.ClientExampleMod",
-    "client-preInit": "${p_group}.ClientExampleMod",
+    "client-postInit": "${p_group}.Client{{ mod_class_name }}",
+    "client-init": "${p_group}.Client{{ mod_class_name }}",
+    "client-preInit": "${p_group}.Client{{ mod_class_name }}",
 
-    "preInit": "${p_group}.PreInitExampleMod",
-    "init": "${p_group}.InitExampleMod",
-    "postInit": "${p_group}.PostInitExampleMod",
-
-    "server-init": "${p_group}.ServerExampleMod"
+    "init": "${p_group}.Init{{ mod_class_name }}",
+    "server-init": "${p_group}.Server{{ mod_class_name }}"
   },
 
-  // Comments are supported in here, just ignore the error your code editor may display
   "mixins": [
     "${p_id}.common.mixins.json",
     {
@@ -42,10 +38,9 @@
   ],
 
   "depends": {
-    "cosmic-reach": ">=0.5.7-alpha",
-    "puzzle-loader-cosmic": ">=1.5.2-alpha",
-    "puzzle-loader-core": ">=1.3.4-alpha",
-    "cosmic-api": ">=1.3.6-0.5.7"
+    "cosmic-reach": ">={{ cosmic_reach_version }}",
+    "puzzle-loader-cosmic": ">={{ puzzle_loader_cosmic_version }}",
+    "puzzle-loader-core": ">={{ puzzle_loader_core_version }}"
   },
 
   "access-writers": [

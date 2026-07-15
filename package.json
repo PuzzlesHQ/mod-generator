@@ -10,7 +10,8 @@
     "build-cli": "node build-cli.js",
     "run": "npm run build-cli && node build/cli.js",
     "test-generate-mdg": "npm run run -- generate --mod-name 'Test Mod' --mod-id testmod --minecraft-version 26.1 --package-name net.neoforged.testmod --output-folder out",
-    "test-generate-ng": "npm run run -- generate --mod-name 'Test Mod' --mod-id testmod --minecraft-version 1.21.11 --package-name net.neoforged.testmod --gradle-plugin ng --output-folder out"
+    "test-generate-ng": "npm run run -- generate --mod-name 'Test Mod' --mod-id testmod --minecraft-version 1.21.11 --package-name net.neoforged.testmod --gradle-plugin ng --output-folder out",
+    "deploy": "npm run build && gh-pages -d dist"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
@@ -37,6 +38,7 @@
     "@vitejs/plugin-vue": "^5.2.1",
     "@vue/tsconfig": "^0.7.0",
     "esbuild": "^0.25.0",
+    "gh-pages": "^6.3.0",
     "prettier": "3.4.2",
     "sass": "^1.89.2",
     "ts-node": "^10.9.2",

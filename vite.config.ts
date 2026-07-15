@@ -31,7 +31,7 @@ const bufferLoader: Plugin = {
 export default defineConfig({
   build: {
     // It only includes vite.svg which we don't need in the built output.
-    copyPublicDir: false,
+    copyPublicDir: true,
     lib: {
       entry: path.resolve(__dirname, "src/main.ts"),
       formats: ["es"],

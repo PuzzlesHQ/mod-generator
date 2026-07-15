@@ -31,11 +31,7 @@ const bufferLoader: Plugin = {
 export default defineConfig({
   build: {
     // It only includes vite.svg which we don't need in the built output.
-    copyPublicDir: true,
-    lib: {
-      entry: path.resolve(__dirname, "src/main.ts"),
-      formats: ["es"],
-    },
+    copyPublicDir: true
   },
   define: {
     // Required in library mode to get rid of process.env in the built file.
@@ -47,5 +43,5 @@ export default defineConfig({
       "@assets": path.resolve(__dirname, "src/assets"),
     },
   },
-  base: "/",
+  base: "/mod-generator/",
 });

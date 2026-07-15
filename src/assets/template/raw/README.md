@@ -1,25 +1,30 @@
+# Puzzle Loader Example Mod
+> The example mod for [Puzzle Loader Cosmic](https://github.com/PuzzlesHQ/puzzle-loader-cosmic)
 
-Installation information
-=======
+## How To Test Client & Server
+For Client testing in the dev env, you can use the `gradle runModdedClient` task
+For Server testing in the dev env, you can use the `gradle runModdedServer` task
 
-This template repository can be directly cloned to get you started with a new
-mod. Simply create a new repository cloned from this one, by following the
-instructions provided by [GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
+## Running Vanilla
+You can run the vanilla Client by use the `gradle runVanillaClient` task.
+You can run the vanilla Server by use the `gradle runVanillaServer` task.
 
-Once you have your clone, simply open the repository in the IDE of your choice. The usual recommendation for an IDE is either IntelliJ IDEA or Eclipse.
+## Build A Jar
+For building, the usual `gradle buildMergedJar` task can be used. The output will be in the `build/libs/` folder
 
-If at any point you are missing libraries in your IDE, or you've run into problems you can
-run `gradlew --refresh-dependencies` to refresh the local cache. `gradlew clean` to reset everything 
-{this does not affect your code} and then start the process again.
+## Updating Your Mod
+Client, common and Server code now need to separate this mean in your mod's src folder you will have `src/client` for Client code, `src/server` for Server code, `src/common` for code that need to be on both Server & Client.
+- [ClientModInit]() for client side
+- [ModInit]() for common side
+- [ServerModInit]() for server side
+- puzzle.mod.json now has `"formatVersion": 3`
+- You can now have three mixin.json for server, common and client, if you want separation.
+- Puzzle has update to its new gradle plugin jigsaw-suite, update your `build.gradle` & `gradle.properties` to example's ones.
+- Use `gradle cleanOldJigsawLocal` and `gradle cleanOldJigsawGlobal` to remove outdated Jigsaw directories from the local and global environments.
+- Run `gradle createTransformSources` to create a sources jar
 
-Mapping Names:
-============
-By default, the MDK is configured to use the official mapping names from Mojang for methods and fields 
-in the Minecraft codebase. These names are covered by a specific license. All modders should be aware of this
-license. For the latest license text, refer to the mapping file itself, or the reference copy here:
-https://github.com/NeoForged/NeoForm/blob/main/Mojang.md
-
-Additional Resources: 
-==========
-Community Documentation: https://docs.neoforged.net/  
-NeoForged Discord: https://discord.neoforged.net/
+## Notes
+- Most project properties can be changed in the `gradle.properties`.
+- To add Puzzle mods in the build, make sure to use `commonImplementation` of common mod
+- To add puzzle mods from a jar do `commonImplementation files("libs/example-mod.jar")`
+- To bundle a Puzzle mod or dependency in the build, make sure to use `commonBundle`, `serverBundle`, `clientBundle`

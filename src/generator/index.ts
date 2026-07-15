@@ -4,11 +4,13 @@ import type { ComputedVersions } from "./versions.ts";
 export interface Settings {
   modName: string;
   modId: string;
-  modAuthors?: string;
-  modDescription?: string;
+  modAuthors: string;
+  modDescription: string;
   packageName: string;
-  minecraftVersion: string;
-  useNeoGradle: boolean;
+  crVersion: string;
+  pCosVersion: string;
+  pCorVersion: string;
+  pJigVersion: string;
   chmodGradlewStep: boolean;
   mixins: boolean;
 }
@@ -91,20 +93,13 @@ function generateInterpolated(
 ) {
   const modClassName = settings.modName.replace(/[^A-Za-z0-9]/g, "");
   const view: Record<string, any> = {
-    gradle_plugin_version: versions.gradlePluginVersion,
-    // Having both is technically redundant, but it reads better in the template.
-    use_mdg: !settings.useNeoGradle,
-    use_ng: settings.useNeoGradle,
-    parchment_minecraft_version: versions.parchmentMinecraftVersion,
-    parchment_mappings_version: versions.parchmentMappingsVersion,
-    minecraft_version: settings.minecraftVersion,
-    minecraft_version_range: versions.minecraftVersionRange,
-    neo_version: versions.neoForgeVersion,
-    loader_version_range: versions.loaderVersionRange,
+    cosmic_reach_version: settings.crVersion,
+    puzzle_loader_cosmic_version: settings.pCosVersion,
+    puzzle_loader_core_version: settings.pCorVersion,
+    puzzle_jigsaw_suite: settings.pJigVersion,
     mod_id: settings.modId,
     mod_name: settings.modName,
     mod_authors: settings.modAuthors,
-    has_authors: settings.modAuthors?.length ?? 0 > 0,
     mod_description: settings.modDescription ?? "Example mod description.",
     mod_group_id: settings.packageName,
     package_name: settings.packageName,
@@ -112,52 +107,41 @@ function generateInterpolated(
     chmod_gradlew_step: settings.chmodGradlewStep,
     mixins: settings.mixins,
   };
-  const partials: Record<string, any> = {
-    mdg_block_gradle,
-    ng_block_gradle,
-  };
-  let seenCurrentMcVersion = false;
-  for (const version of versions.minecraftVersions) {
-    if (version === settings.minecraftVersion) {
-      seenCurrentMcVersion = true;
+
+  let seenCurrentCRVersion = false;
+  for (const version of versions.crVersions) {
+    if (version === settings.crVersion) {
+      seenCurrentCRVersion = true;
     }
     const templateVersion = version.replace(/\./g, "_");
-    view[`before_${templateVersion}`] = !seenCurrentMcVersion;
-    view[`from_${templateVersion}`] = seenCurrentMcVersion;
+    view[`before_${templateVersion}`] = !seenCurrentCRVersion;
+    view[`from_${templateVersion}`] = seenCurrentCRVersion;
   }
-  view.mods_toml_file = view.before_1_20_5 ? "mods.toml" : "neoforge.mods.toml";
-
-  view.java_version = view.before_26_1 ? view.before_1_20_5 ? 17 : 21 : 25;
 
   iterateGlob(inputs.interpolated, "interpolated/", (filePath, contents) => {
     const textContent = new TextDecoder().decode(contents);
     ret[filePath] = encodeUtf8(
-      interpolateTemplate(textContent, view, partials),
+      interpolateTemplate(textContent, view),
     );
   });
 
-  ret[
-    `src/main/${settings.useNeoGradle ? "resources" : "templates"}/META-INF/${view.mods_toml_file}`
-  ] = encodeUtf8(interpolateTemplate(neoforge_mods_toml, view));
-
-  ret[`src/main/resources/assets/${settings.modId}/lang/en_us.json`] =
+  ret[`src/common/resources/assets/${settings.modId}/lang/en_us.json`] =
     encodeUtf8(interpolateTemplate(en_us_json, view));
 
-  const javaFolder = `src/main/java/${settings.packageName.replace(/\./g, "/")}`;
-  ret[`${javaFolder}/Config.java`] = encodeUtf8(
-    interpolateTemplate(Config_java, view),
-  );
-  ret[`${javaFolder}/${modClassName}.java`] = encodeUtf8(
+  const commonFolder = `src/common/java/${settings.packageName.replace(/\./g, "/")}`;
+  const clientFolder = `src/common/java/${settings.packageName.replace(/\./g, "/")}`;
+
+
+  ret[`${commonFolder}/${modClassName}.java`] = encodeUtf8(
     interpolateTemplate(ModClass_java, view),
   );
-  if (view.from_1_21_1) {
-    ret[`${javaFolder}/${modClassName}Client.java`] = encodeUtf8(
-      interpolateTemplate(ModClassClient_java, view),
-    );
-  }
+
+  ret[`${clientFolder}/${modClassName}Client.java`] = encodeUtf8(
+    interpolateTemplate(ModClassClient_java, view),
+  );
 
   if (settings.mixins) {
-    ret[`src/main/resources/${settings.modId}.mixins.json`] = encodeUtf8(
+    ret[`src/common/resources/${settings.modId}.common.mixins.json`] = encodeUtf8(
       interpolateTemplate(mixins_json, view),
     );
   }

@@ -2,14 +2,17 @@
 import {computed, onMounted, reactive, type Ref, ref} from "vue";
 import {type GeneratedTemplate, generateTemplate} from "../generator/";
 import templateInputs from "../generator/io-vite.ts";
-import {fetchMinecraftVersions, fetchVersions,} from "../generator/versions.ts";
+import {fetchVersions} from "../generator/versions.ts";
 import {helpers, maxLength, minLength, required} from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
 import PreviewDialog from "./PreviewDialog.vue";
 import {saveAs} from "file-saver";
 import JSZip from "jszip";
 
-const mcVersions = ref<string[]>([]);
+const crVersions = ref<string[]>([]);
+const pCorVersions = ref<string[]>([]);
+const pCosVersions = ref<string[]>([]);
+const pJigVersions = ref<string[]>([]);
 
 const state = reactive({
   modName: 'Example Mod',
@@ -17,16 +20,18 @@ const state = reactive({
   modAuthors: null,
   modDescription: null,
   packageName: 'com.example.examplemod',
-  minecraftVersion: '',
-  gradlePlugin: 'ModDevGradle',
+  crVersion: '',
+  pCosVersion: '',
+  pCorVersion: '',
+  pJigVersion: '',
   mixins: false
 })
 
 onMounted(async () => {
-  mcVersions.value = await fetchMinecraftVersions();
-  if (mcVersions.value.length > 0) {
+  crVersions.value = await fetchVersions();
+  if (crVersions.value.length > 0) {
     // Select latest MC version by default
-    state.minecraftVersion = mcVersions.value[0];
+    state.crVersion = crVersions.value[0];
   }
 });
 
@@ -56,19 +61,21 @@ async function generateToJSON() {
     modAuthors: state.modAuthors,
     modDescription: state.modDescription,
     packageName: state.packageName,
-    minecraftVersion: state.minecraftVersion,
-    useNeoGradle: state.gradlePlugin === "NeoGradle",
+    crVersion: state.crVersion,
+    pCosVersion: state.pCosVersion,
+    pCorVersion: state.pCorVersion,
+    pJigVersion: state.pJigVersion,
     chmodGradlewStep: true,
     mixins: state.mixins
   };
   return generateTemplate(
       templateInputs,
       settings,
-      await fetchVersions(settings, () => new DOMParser(), mcVersions.value),
+      await fetchVersions(settings, () => new DOMParser(), crVersions.value),
   );
 }
 
-const zipName = computed(() => `${computeModId(state.modId)}-template-${state.minecraftVersion}.zip`)
+const zipName = computed(() => `${computeModId(state.modId)}-template-${state.crVersion}.zip`)
 
 async function generateAndDownload() {
   await downloadZip(await generateToJSON())
@@ -132,7 +139,7 @@ const submit = async (generator: () => Promise<any>) => {
 </script>
 
 <template>
-  <div class="mod-generator" v-if="mcVersions.length > 0">
+  <div class="mod-generator" v-if="crVersions.length > 0">
     <v-overlay v-model="overlay" class="screen-center">
       <v-progress-circular
           color="primary"
@@ -191,10 +198,10 @@ const submit = async (generator: () => Promise<any>) => {
       <br/>
 
       <v-select
-          v-model="state.minecraftVersion"
-          :items="mcVersions"
-          label="Minecraft Version"
-          hint="Choose the Minecraft version for your mod"
+          v-model="state.crVersion"
+          :items="crVersions"
+          label="Cosmic Reach Version"
+          hint="Choose the Cosmic Reach version for your mod"
           persistent-hint
           required
           variant="outlined"
@@ -203,14 +210,50 @@ const submit = async (generator: () => Promise<any>) => {
       <br/>
 
       <v-select
-          v-model="state.gradlePlugin"
-          :items="['ModDevGradle', 'NeoGradle']"
-          label="Gradle Plugin"
-          hint="Choose the Gradle plugin to use in your mod"
-          persistent-hint
-          required
-          variant="outlined"
-          :menu-props="{scrollStrategy: 'none'}"
+        v-model="state.pCorVersion"
+        :items="pCorVersions"
+        label="Puzzle Core Version"
+        hint="Choose the Puzzle Core version for your mod"
+        persistent-hint
+        required
+        variant="outlined"
+        :menu-props="{scrollStrategy: 'none'}"
+      />
+      <br/>
+
+      <v-select
+        v-model="state.pCorVersion"
+        :items="pCorVersions"
+        label="Puzzle Cosmic Version"
+        hint="Choose the Puzzle Cosmic version for your mod"
+        persistent-hint
+        required
+        variant="outlined"
+        :menu-props="{scrollStrategy: 'none'}"
+      />
+      <br/>
+
+      <v-select
+        v-model="state.pCorVersion"
+        :items="pCorVersions"
+        label="Puzzle Cosmic Version"
+        hint="Choose the Puzzle Cosmic version for your mod"
+        persistent-hint
+        required
+        variant="outlined"
+        :menu-props="{scrollStrategy: 'none'}"
+      />
+      <br/>
+
+      <v-select
+        v-model="state.pJigVersion"
+        :items="pJigVersions"
+        label="Puzzle Jigsaw Version"
+        hint="Choose the Puzzle Jigsaw version for your mod"
+        persistent-hint
+        required
+        variant="outlined"
+        :menu-props="{scrollStrategy: 'none'}"
       />
       <br/>
 
@@ -229,7 +272,7 @@ const submit = async (generator: () => Promise<any>) => {
             <v-textarea
                 v-model="state.modDescription"
                 label="Mod Description"
-                hint="The description  of your mod"
+                hint="The description of your mod"
                 persistent-hint
                 variant="outlined"
             />
@@ -280,7 +323,7 @@ const submit = async (generator: () => Promise<any>) => {
     />
   </div>
   <div v-else>
-    <p>Loading Minecraft versions...</p>
+    <p>Loading versions...</p>
   </div>
 </template>
 

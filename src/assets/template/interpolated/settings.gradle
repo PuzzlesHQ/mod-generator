@@ -1,12 +1,20 @@
-pluginManagement {
+buildscript {
     repositories {
+        maven {
+            name "JitPack"
+            url "https://jitpack.io"
+        }
+        maven {
+            name "Puzzles Releases"
+            url "https://maven.puzzleshq.dev/releases/"
+        }
+        mavenCentral()
+        mavenLocal()
         gradlePluginPortal()
-{{ #use_ng }}
-        maven { url = 'https://maven.neoforged.net/releases' }
-{{ /use_ng }}
+    }
+    dependencies {
+        classpath("dev.puzzleshq:jigsaw-suite:$puzzle_jigsaw_suite")
     }
 }
 
-plugins {
-    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
-}
+rootProject.name = p_id

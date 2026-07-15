@@ -29,14 +29,11 @@ export function compareMinecraftVersions(
 }
 
 export interface ComputedVersions {
-  minecraftVersions: string[];
-  minecraftVersion: MinecraftVersion;
-  gradlePluginVersion: string;
-  parchmentMinecraftVersion: string;
-  parchmentMappingsVersion: string;
-  minecraftVersionRange: string;
-  neoForgeVersion: string;
-  loaderVersionRange: string;
+  crVersions: string[];
+  crVersion: MinecraftVersion;
+  pCorVersion: string;
+  pCosVersion: string;
+  pJigVersion: string;
 }
 
 /**
@@ -45,38 +42,25 @@ export interface ComputedVersions {
 export async function fetchVersions(
   settings: Settings,
   xmlParser: () => DOMParser | import("@xmldom/xmldom").DOMParser,
-  minecraftVersions?: string[],
+  crVersions?: string[],
 ): Promise<ComputedVersions> {
-  const mcVersion = parseMinecraftVersion(settings.minecraftVersion);
-  const neoForgePrefix =
-    mcVersion.major === 1
-      ? `${mcVersion.minor}.${mcVersion.patch}.`
-      : `${mcVersion.major}.${mcVersion.minor}.${mcVersion.patch}`;
+  const crParsedVersion = parseMinecraftVersion(settings.crVersion);
 
-  if (!minecraftVersions) {
-    minecraftVersions = await fetchMinecraftVersions();
+  if (!crVersions) {
+    crVersions = await fetchMinecraftVersions();
   }
   const versions = await Promise.all([
-    settings.useNeoGradle
-      ? fetchLatestMavenVersion("net.neoforged.gradle", "userdev", "7.1")
-      : fetchLatestMavenVersion("net.neoforged", "moddev-gradle", "2.0"),
-    fetchParchmentVersions(
-      settings.minecraftVersion,
-      xmlParser,
-      minecraftVersions,
-    ),
-    fetchLatestMavenVersion("net.neoforged", "neoforge", neoForgePrefix),
+    fetchLatestMavenVersion("dev.puzzleshq", "puzzle-lodaer-core"),
+    fetchLatestMavenVersion("dev.puzzleshq", "puzzle-lodaer-cosmic"),
+    fetchLatestMavenVersion("dev.puzzleshq", "jigsaw-suite"),
   ]);
   return {
-    minecraftVersions,
-    minecraftVersion: mcVersion,
-    gradlePluginVersion: versions[0],
-    parchmentMinecraftVersion: versions[1].parchmentMinecraftVersion,
-    parchmentMappingsVersion: versions[1].parchmentMappingsVersion,
-    minecraftVersionRange: `[${settings.minecraftVersion}]`,
-    neoForgeVersion: versions[2],
-    // TODO: this is kinda useless, shouldn't we remove it altogether?
-    loaderVersionRange: `[1,)`,
+    crVersions,
+    crVersion: crParsedVersion,
+    pCorVersion: versions[0],
+    pCosVersion: versions[1],
+    pJigVersion: versions[2]
+
   };
 }
 
@@ -104,55 +88,10 @@ export async function fetchMinecraftVersions(): Promise<string[]> {
 
 async function fetchLatestMavenVersion(
   group: string,
-  artifact: string,
-  filter?: string,
+  artifact: string
 ): Promise<string> {
-  const filterSuffix = filter ? `?filter=${filter}` : "";
   const req = await fetch(
-    `https://maven.neoforged.net/api/maven/latest/version/releases/${group.replace(/\./g, "/")}/${artifact}${filterSuffix}`,
+    `https://maven.puzzleshq.dev/#/releases/${group.replace(/\./g, "/")}/${artifact}`,
   );
   return (await req.json()).version;
-}
-
-async function fetchParchmentVersions(
-  mcVersion: string,
-  xmlParser: () => DOMParser | import("@xmldom/xmldom").DOMParser,
-  minecraftVersions: string[],
-) {
-  let foundMcVersion = false;
-  // Scan each MC version, new to old, to find suitable parchment data.
-  for (const candidateVersion of minecraftVersions) {
-    if (candidateVersion === mcVersion) {
-      foundMcVersion = true;
-    }
-    if (!foundMcVersion) {
-      continue;
-    }
-    const req = await fetch(
-      `https://maven.neoforged.net/releases/org/parchmentmc/data/parchment-${candidateVersion}/maven-metadata.xml`,
-    );
-    if (!req.ok) {
-      continue; // MC version might not have parchment data yet.
-    }
-    const xmlDocument = xmlParser().parseFromString(
-      await req.text(),
-      "text/xml",
-    );
-    const release = xmlDocument
-      .getElementsByTagName("metadata")[0]
-      .getElementsByTagName("versioning")[0]
-      .getElementsByTagName("release");
-    if (release.length === 1) {
-      if (!release[0].textContent) {
-        throw new Error("Unexpected null text content for node " + release[0]);
-      }
-      return {
-        parchmentMinecraftVersion: candidateVersion,
-        parchmentMappingsVersion: release[0].textContent,
-      };
-    }
-  }
-  throw new Error(
-    `Failed to find Parchment version for Minecraft ${mcVersion} or older.`,
-  );
 }

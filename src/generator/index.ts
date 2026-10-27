@@ -119,12 +119,12 @@ function generateInterpolated(
     if (version === settings.crVersion) {
       seenCurrentCRVersion = true;
     }
-    const templateVersion = version.replace(/\./g, "_");
+    const templateVersion = version.replace(/[^a-zA-Z0-9]/g, "_");
     view[`before_${templateVersion}`] = !seenCurrentCRVersion;
     view[`from_${templateVersion}`] = seenCurrentCRVersion;
   }
 
-  view.java_version = view.before_0_4_11 ? 17 : 24;
+  view.java_version = view.before_0_4_11_alpha ? 17 : 24;
 
   iterateGlob(inputs.interpolated, "interpolated/", (filePath, contents) => {
     const textContent = new TextDecoder().decode(contents);

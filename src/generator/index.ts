@@ -124,6 +124,8 @@ function generateInterpolated(
     view[`from_${templateVersion}`] = seenCurrentCRVersion;
   }
 
+  view.java_version = view.before_0_4_11 ? 17 : 24;
+
   iterateGlob(inputs.interpolated, "interpolated/", (filePath, contents) => {
     const textContent = new TextDecoder().decode(contents);
     ret[filePath] = encodeUtf8(
